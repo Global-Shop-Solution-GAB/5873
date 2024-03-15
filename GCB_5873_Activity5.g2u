@@ -1,0 +1,142 @@
+Program.Sub.ScreenSU.Start
+Gui.NewPartForm..Create
+Gui.NewPartForm..Size(6360,5700)
+Gui.NewPartForm..MinX(0)
+Gui.NewPartForm..MinY(0)
+Gui.NewPartForm..Position(0,0)
+Gui.NewPartForm..BackColor(-2147483633)
+Gui.NewPartForm..MousePointer(0)
+Gui.NewPartForm..Caption("Create New Part")
+Gui.NewPartForm..Event(UnLoad,NewPartForm_UnLoad)
+Gui.NewPartForm.txtPartNum.Create(TextBox,"",True,1860,300,0,510,900,True,0,"Arial",8,-2147483643,1)
+Gui.NewPartForm.txtRev.Create(TextBox,"",True,975,300,0,2745,900,True,0,"Arial",8,-2147483643,1)
+Gui.NewPartForm.txtLoc.Create(TextBox,"",True,660,300,0,4005,900,True,0,"Arial",8,-2147483643,1)
+Gui.NewPartForm.txtDes.Create(TextBox,"",True,3255,300,0,465,1875,True,0,"Arial",8,-2147483643,1)
+Gui.NewPartForm.txtUM.Create(TextBox,"",True,630,300,0,4035,1875,True,0,"Arial",8,-2147483643,1)
+Gui.NewPartForm.txtPL.Create(TextBox,"",True,930,300,0,480,2730,True,0,"Arial",8,-2147483643,1)
+Gui.NewPartForm.txtSC.Create(TextBox,"",True,840,300,0,1770,2745,True,0,"Arial",8,-2147483643,1)
+Gui.NewPartForm.txtAltDes1.Create(TextBox,"",True,1785,300,0,2910,2745,True,0,"Arial",8,-2147483643,1)
+Gui.NewPartForm.txtAltDes2.Create(TextBox,"",True,1755,300,0,705,3450,True,0,"Arial",8,-2147483643,1)
+Gui.NewPartForm.txtPrice.Create(TextBox,"",True,915,300,0,2865,3450,True,0,"Arial",8,-2147483643,1)
+Gui.NewPartForm.lblPartNum.Create(Label,"Part Number",True,1935,255,0,540,585,True,0,"Arial",8,-2147483633,0)
+Gui.NewPartForm.lblRev.Create(Label,"Rev",True,1110,255,0,2760,615,True,0,"Arial",8,-2147483633,0)
+Gui.NewPartForm.lblLoc.Create(Label,"Location",True,1470,255,0,3960,630,True,0,"Arial",8,-2147483633,0)
+Gui.NewPartForm.lblDes.Create(Label,"Description",True,2400,255,0,465,1635,True,0,"Arial",8,-2147483633,0)
+Gui.NewPartForm.lblUM.Create(Label,"UM (Unit of Measure",True,1725,255,0,3630,1575,True,0,"Arial",8,-2147483633,0)
+Gui.NewPartForm.lblPL.Create(Label,"Product Line",True,1110,255,0,405,2460,True,0,"Arial",8,-2147483633,0)
+Gui.NewPartForm.lblSC.Create(Label,"Source Code",True,1095,255,0,1650,2460,True,0,"Arial",8,-2147483633,0)
+Gui.NewPartForm.lblAltDes1.Create(Label,"Alt Desciption 1",True,1935,255,0,2880,2445,True,0,"Arial",8,-2147483633,0)
+Gui.NewPartForm.lblAltDes2.Create(Label,"Alt Description 2",True,1755,255,0,690,3195,True,0,"Arial",8,-2147483633,0)
+Gui.NewPartForm.lblPrice.Create(Label,"Price ",True,1710,255,0,2850,3225,True,0,"Arial",8,-2147483633,0)
+Gui.NewPartForm.cmdSave.Create(Button)
+Gui.NewPartForm.cmdSave.Size(855,375)
+Gui.NewPartForm.cmdSave.Position(2355,4035)
+Gui.NewPartForm.cmdSave.Caption("Save")
+Gui.NewPartForm.cmdSave.Event(Click,cmdSave_Click)
+Gui.NewPartForm.cmdPartBrwsr.Create(Button)
+Gui.NewPartForm.cmdPartBrwsr.Size(285,300)
+Gui.NewPartForm.cmdPartBrwsr.Position(2385,900)
+Gui.NewPartForm.cmdPartBrwsr.Caption("^")
+Gui.NewPartForm.cmdPartBrwsr.Event(Click,cmdPartBrwsr_Click)
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+F.ODBC.Connection!BrwsrConnect.openConnection(V.Ambient.PDSN, V.Ambient.PUser, V.Ambient.PPass)
+Gui.NewPartForm..Show
+Program.Sub.Main.End
+
+Program.Sub.cmdPartBrwsr_Click.Start
+F.Intrinsic.Control.Try	
+	V.Local.sError.Declare
+	
+	V.Local.sSQL.Declare(String)
+	V.Local.sCol.Declare(String)
+	V.Local.sColW.Declare(String)
+	V.Local.sRet.Declare(String)
+	
+	V.Local.sSQL.Set("Select V_INVENTORY_MSTR.PART, V_INVENTORY_MSTR.LOCATION, V_INVENTORY_MSTR.DESCRIPTION, V_INVENTORY_MSTR.UM_INVENTORY, V_INVENTORY_MSTR.PRODUCT_LINE, V_INVENTORY_MSTR.AMT_COST, V_INVENTORY_MST2.CODE_SOURCE, V_INVENTORY_MST2.DESCRIPTION_2, V_INVENTORY_MST2.DESCRIPTION_3 From V_INVENTORY_MSTR Inner Join V_INVENTORY_MST2 on V_INVENTORY_MSTR.PART = V_INVENTORY_MST2.PART")
+	'Split Column Names into an array (*!* delimited string)
+	F.Intrinsic.String.Split("Part*!*Location*!*Description*!*UM*!*Product line*!*Cost*!*Source Code*!*Alt Description 1*!*Alt Description 2","*!*",V.Local.sCol)
+	'Split Column widths into an array (*!* delimited string)
+	F.Intrinsic.String.Split("3000*!*1000*!*3750*!*600*!*1000*!*1000*!*3000*!*4250*!*4250","*!*",V.Local.sColW)
+	
+	F.Intrinsic.UI.Browser("Select a Part","BrwsrConnect",V.Local.sSQL,V.Local.sCol,V.Local.sColW,V.Local.sRet)
+	F.Intrinsic.String.Split(V.Local.sRet,"*!*", V.Local.sRet)
+	'sRet contents
+	'0: Part, 1: Loc, 2: Des, 3: UM, 4: PL, 5: Cost, 6: SC, 7: Alt des 1, 8: Alt des 2
+	'If user selects part populate text boxes 
+	F.Intrinsic.Control.If(V.Local.sRet,<>,"***CANCEL***")
+		Gui.NewPartForm.txtPartNum.Text(V.Local.sRet(0))
+		Gui.NewPartForm.txtLoc.Text(V.Local.sRet(1))
+		Gui.NewPartForm.txtDes.Text(V.Local.sRet(2))
+		Gui.NewPartForm.txtUM.Text(V.Local.sRet(3))
+		Gui.NewPartForm.txtPL.Text(V.Local.sRet(4))
+		Gui.NewPartForm.txtPrice.Text(V.Local.sRet(5))
+		Gui.NewPartForm.txtSC.Text(V.Local.sRet(6))
+		'Error occurs here
+		Gui.NewPartForm.txtAltDes1.Text(V.Local.sRet(7))
+		Gui.NewPartForm.txtAltDes2.Text(V.Local.sRet(8))
+	F.Intrinsic.Control.Else
+		F.Intrinsic.UI.Msgbox("No part was selected!")
+	F.Intrinsic.Control.EndIf
+
+F.Intrinsic.Control.Catch
+	Function.Intrinsic.String.Concat("Project: Create new part & add to database",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub("NewPartForm_Unload")
+F.Intrinsic.Control.EndTry
+Program.Sub.cmdPartBrwsr_Click.End
+
+Program.Sub.cmdSave_Click.Start
+F.Intrinsic.Control.Try
+	V.Local.sError.Declare(String)
+	
+	V.Local..BulkDeclareString(sPartNum, sRev, sLoc, sDes, sUM, sPL, sSC, sAlt1, sAlt2, sDisplayMessage)
+	V.Local.iPrice.Declare(Long)
+	V.Local.sCompare.Declare(String)
+	V.Local.sFormatted.Declare(String)
+	
+	'Format part num and rev, compare this in sql statement
+	V.Local.sPartNum.Set(V.Screen.NewPartForm!txtPartNum.Text)
+	V.Local.sLoc.Set(V.Screen.NewPartForm!txtLoc.Text)
+	V.Local.sRev.Set(V.Screen.NewPartForm!txtRev.Text)
+	F.Intrinsic.String.GSSPartString(V.Local.sPartNum, V.Local.sRev, V.Local.sFormatted)
+	
+	'If no identical part is found in inventory, continue w setting variables and adding it to database
+	F.Intrinsic.Control.If(F.Global.Inventory.GetPartInfo(V.Local.sFormatted, V.Local.sLoc, V.Local.sCompare), "=", "***NOPARTFOUND***")
+		'Read input from txt boxes and set to variables
+		V.Local.sDes.Set(V.Screen.NewPartForm!txtDes.Text)
+		V.Local.sUM.Set(V.Screen.NewPartForm!txtUM.Text)
+		V.Local.sPL.Set(V.Screen.NewPartForm!txtPL.Text)
+		V.Local.sSC.Set(V.Screen.NewPartForm!txtSC.Text)
+		V.Local.sAlt1.Set(V.Screen.NewPartForm!txtAltDes1.Text)
+		V.Local.sAlt2.Set(V.Screen.NewPartForm!txtAltDes2.Text)
+		V.Local.iPrice.Set(V.Screen.NewPartForm!txtPrice.Text)
+		F.Global.Inventory.CreatePart(V.Local.sFormatted,V.Local.sUM, V.Local.sDes, V.Local.sLoc, V.Local.sPL, V.Local.sSC, V.Local.sAlt1, V.Local.sAlt2, V.Local.iPrice)
+		'Display message saying that part successfully written
+		F.Intrinsic.String.Concat("Part Number: ", V.Local.sFormatted, "Created and added to database", V.Local.sDisplayMessage)
+		F.Intrinsic.UI.Msgbox(V.Local.sDisplayMessage)
+	'If match is found
+	F.Intrinsic.Control.Else
+		F.Intrinsic.UI.Msgbox("Part already exists in inentory!")
+    F.Intrinsic.Control.EndIf
+    
+F.Intrinsic.Control.Catch
+	Function.Intrinsic.String.Concat("Project: Activity5-Create new part & add to database.g2u",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+	F.Intrinsic.Control.CallSub("NewPartForm_Unload")
+F.Intrinsic.Control.EndTry		
+Program.Sub.cmdSave_Click.End
+
+Program.Sub.NewPartForm_UnLoad.Start
+	F.ODBC.Connection!BrwsrConnect.Close
+	F.Intrinsic.Control.End
+
+Program.Sub.NewPartForm_UnLoad.End
+
+Program.Sub.Comments.Start
+${$0$}$$}$$}$12:00:00 AM$}$False
+Program.Sub.Comments.End
